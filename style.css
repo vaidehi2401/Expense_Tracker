@@ -29,3 +29,34 @@
 .form-group{
     margin-bottom: 10px;
 }
+#form{
+    margin-top: 20px;
+    margin-left:350px;
+}
+#edit{
+    margin-left: 5px;
+}
+#del{
+    margin-left: 5px;
+}
+#list{
+    padding-top: 10px;
+}
+#newLi{
+    margin-top:10px;
+}
+#listc{
+    margin-left:50px;
+}
+.heading{
+    align-items:center;
+    margin-top:20px;
+    margin-bottom:20px;
+    margin-left:700px;
+}
+#amount{
+    margin-bottom:10px;
+}
+.form-group{
+    margin-bottom: 10px;
+}

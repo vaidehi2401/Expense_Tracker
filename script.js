@@ -1,68 +1,88 @@
-
-let id = 0; 
 function handleSubmit(event) {
     event.preventDefault();
-    id++;
     const amount = event.target.amount.value;
-    const description = event.target.description.value;
     const category = event.target.category.value;
+    const description = event.target.description.value;
     let expense = {
-        id: id,
         amount: amount,
-        description: description,
         category: category,
+        description: description
     };
-    localStorage.setItem(id, JSON.stringify(expense));
-    renderExpense(expense);
+    axios
+        .post(
+            "http://localhost:3001/expense/add-expense",
+            expense
+        )
+        .then((response) => {renderDetails(response.data.newExpenseDetail)
+    console.log(response.data)})
+        .catch((error) => console.log(error));
+        document.getElementById("amount").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("category").value = "";
+        
 }
-function renderExpense(expense) {
+
+function renderDetails(details) {
+    console.log(details)
+    const id = details.id;
     const users = document.querySelector('.list-group');
     const newLi = document.createElement('li');
-    newLi.textContent = `${expense.amount} - ${expense.description} - ${expense.category}`;
-    const delBtn = document.createElement('button');
-    delBtn.innerHTML = 'Delete';
-    delBtn.className = "btn btn-danger";
+    newLi.textContent = `${details.amount} - ${details.category} - ${details.description}`;
     const editBtn = document.createElement('button');
     editBtn.innerHTML = 'Edit';
+    editBtn.id="edit"
+    const deleteBtn = document.createElement('button');
+   deleteBtn.innerHTML = 'Delete';
+    deleteBtn.id="edit"
     editBtn.className = "btn btn-primary";
-    editBtn.id="edit";
-    delBtn.id="del";
-    users.id="list"
-    newLi.id="newLi";
-    delBtn.addEventListener('click', () => {
-        localStorage.removeItem(expense.id);
-        users.removeChild(newLi); 
-    });
+    deleteBtn.className = "btn btn-primary";
+    users.id = "list";
+    newLi.id = "newLi";
     editBtn.addEventListener('click', () => {
-        const amountInput = document.querySelector('#amount');
-        const descriptionInput = document.querySelector('#description');
-        const categoryInput = document.querySelector('#category');
-        amountInput.value = expense.amount;
-        descriptionInput.value = expense.description;
-        categoryInput.value = expense.category;
-        localStorage.removeItem(expense.id);
+         axios.get(`http://localhost:3001/expense/get-ExpensebyId/${id}`)
+         .then((response)=>{
+            document.getElementById("amount").value = response.data.amount;
+            document.getElementById("category").value = response.data.category;
+            document.getElementById("description").value = response.data.description;
+            return axios.delete(`http://localhost:3001/expense/delete-expense/${id}`)
+         })
+         .then((response)=>{
+            console.log("Deleted");
         users.removeChild(newLi);
+         })
+        .catch((err)=>{
+            console.log(err);
+        })
     });
-    newLi.appendChild(delBtn);
+    deleteBtn.addEventListener('click', ()=>{
+     axios.delete(`http://localhost:3001/expense/delete-expense/${id}`)
+     .then((response)=>{
+        console.log("Deleted");
+        users.removeChild(newLi);
+     })
+     .catch((err)=>{
+console.log(err);
+     })
+    })
     newLi.appendChild(editBtn);
+    newLi.appendChild(deleteBtn);
     newLi.className = "newLi";
     users.appendChild(newLi);
-    amount.value="";
-    description.value="";
-    category.value="";
 }
-function loadExpenses() {
-    let maxId = 0; 
-    for (let key in localStorage) {
-        if (localStorage.hasOwnProperty(key)) {
-            const expense = JSON.parse(localStorage.getItem(key));
-            if (expense && expense.id) {
-                renderExpense(expense); 
-                maxId = Math.max(maxId, expense.id); 
+
+window.addEventListener("DOMContentLoaded", () => {
+console.log("loaded")
+    axios.get("http://localhost:3001/expense/get-expense")
+        .then((response) => {
+            console.log("called")
+            console.log(response.data.allUsers)
+            for (var i = 0; i < response.data.allUsers.length; i++) {
+                renderDetails(response.data.allUsers[i]);
             }
-        }
-    }
-    id = maxId; 
-}
-loadExpenses();
+        })
+        .catch((error) => {
+            console.log(error);
+        });   
+});
+
 
